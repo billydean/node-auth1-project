@@ -9,7 +9,7 @@ const Users = require('../users/users-model');
   }
 */
 function restricted(req,res,next) {
-  if (!req.session) {
+  if (!req.session.user) {
     res.status(401).json({
       message: 'You shall not pass!'
     })
@@ -51,6 +51,7 @@ async function checkUsernameExists(req, res, next) {
   try {
     const checked = await Users.findBy({username: req.body.username});
     if (checked.length !== 0) {
+      req.user = checked[0]
       next();
     } else {
       next ({status: 401, message: "Invalid credentials"});
