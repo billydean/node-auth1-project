@@ -9,14 +9,17 @@ const Users = require('../users/users-model');
   }
 */
 function restricted(req,res,next) {
-  if (!req.session.user) {
-    res.status(401).json({
-      message: 'You shall not pass!'
-    })
-  } else {
-    next();
-  }
+if (req.session.user) {
+  next()
+} else {
+  next({
+    status: 401,
+    message: 'You shall not pass!'
+  })
 }
+}
+
+
 
 /*
   If the username in req.body already exists in the database
@@ -50,8 +53,9 @@ async function checkUsernameFree(req,res,next) {
 async function checkUsernameExists(req, res, next) {
   try {
     const checked = await Users.findBy({username: req.body.username});
-    if (checked.length !== 0) {
-      req.user = checked[0]
+    if (checked.length) {
+      req.user = checked[0];
+      console.log(checked[0]);
       next();
     } else {
       next ({status: 401, message: "Invalid credentials"});

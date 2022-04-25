@@ -33,7 +33,7 @@ router.post('/register', checkPasswordLength, checkUsernameFree, (req, res, next
   const hash = bcrypt.hashSync(password, 8);
   Users.add({username, password: hash})
     .then(saved => {
-      res.status(200).json(saved)
+      res.status(201).json(saved)
     })
     .catch(next)
 })
@@ -57,8 +57,9 @@ router.post('/register', checkPasswordLength, checkUsernameFree, (req, res, next
 router.post('/login', checkUsernameExists, (req, res, next) => {
   const { password } = req.body;
   if (bcrypt.compareSync(password, req.user.password)) {
+    
     req.session.user = req.user;
-    res.json({message: `Welcome ${req.user.username}`})
+    res.status(200).json({message: `Welcome ${req.user.username}!`})
   } else {
     next({
       status: 401,
@@ -83,7 +84,7 @@ router.post('/login', checkUsernameExists, (req, res, next) => {
  */
   router.get('/logout', (req, res, next) => {
     if (req.session.user) {
-      res.session.destroy(err => {
+      req.session.destroy(err => {
         if (err) {
           next(err)
         } else {
